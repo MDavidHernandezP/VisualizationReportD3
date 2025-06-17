@@ -20,7 +20,7 @@
         }
 
         .dashboard {
-            max-width: 1400px;
+            max-width: 900px; /* Reducido para una mejor visualización de una sola columna */
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -83,7 +83,7 @@
 
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ajustado para 2 o 3 columnas */
+            grid-template-columns: 1fr; /* ¡CAMBIO CLAVE AQUÍ! Una sola columna */
             gap: 30px;
             margin-bottom: 30px;
         }
@@ -98,6 +98,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            width: 100%; /* Asegura que ocupe todo el ancho de la columna */
         }
 
         .chart-container:hover {
@@ -112,6 +113,7 @@
             text-align: center;
         }
 
+        /* En este diseño, full-width ya no es necesario, pero lo mantenemos por si se cambia el layout más tarde */
         .full-width {
             grid-column: 1 / -1;
         }
@@ -161,17 +163,30 @@
             opacity: 0.8;
         }
 
-        /* Estilos específicos para las nuevas visualizaciones */
+        /* Estilos específicos para las visualizaciones SVG */
         .chart-container svg {
             background: lightgrey;
             border-radius: 8px;
+            max-width: 100%; /* Asegura que el SVG no desborde */
+            height: auto; /* Mantiene la proporción */
         }
 
+        /* Ajuste específico para el brush, para que los dos SVGs estén uno al lado del otro */
+        #brushCharts {
+            display: flex;
+            flex-direction: column; /* Apila los SVGs del brush uno debajo del otro también */
+            gap: 10px;
+            width: 100%; /* Ocupa el ancho del contenedor */
+            align-items: center;
+        }
+
+        #brushCharts svg {
+            width: 100%; /* Cada SVG del brush ocupará el 100% de su contenedor */
+            max-width: 300px; /* Limita el ancho máximo para que no se estiren demasiado */
+        }
+
+
         @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .dashboard {
                 padding: 20px;
             }
@@ -187,6 +202,16 @@
         <div class="header">
             <h1>📊 Dashboard Interactivo</h1>
             <p>Visualización de datos con D3.js</p>
+
+            <p>Universidad Politécnica de Yucatán</p>
+            <p>Data Engineering</p>
+            <p>Hecho por Mario David Hernadez Pantoja</p>
+
+            <p>8th quadrimester</p>
+            <p>Visualization Tools</p>
+            <p>06/17/2025</p>
+
+            <p>Activity A06 - D3.js Reports</p>
         </div>
 
         <div class="stats-grid" id="stats"></div>
@@ -199,14 +224,13 @@
 
             <div class="chart-container">
                 <div class="chart-title">✨ Brush Interactivo</div>
-                <div id="brushCharts" style="display: flex; gap: 10px;">
+                <div id="brushCharts">
                     <div id="brush1"></div>
                     <div id="brush2"></div>
                 </div>
             </div>
 
-            <div class="chart-container full-width">
-                <div class="chart-title">✋ Drag and Drop</div>
+            <div class="chart-container"> <div class="chart-title">✋ Drag and Drop</div>
                 <div id="dragDropChart"></div>
             </div>
 
@@ -242,13 +266,6 @@
 
         // Crear tarjetas de estadísticas (sin cambios)
         function createStatsCards() {
-            const stats = [
-                { label: 'Ventas Totales', value: '$328K', icon: '💰' },
-                { label: 'Usuarios Activos', value: '8.2K', icon: '👥' },
-                { label: 'Productos', value: '1,247', icon: '📦' },
-                { label: 'Conversión', value: '3.2%', icon: '📈' }
-            ];
-
             const statsContainer = d3.select('#stats');
             
             const cards = statsContainer.selectAll('.stat-card')
@@ -381,13 +398,13 @@
             var widget = undefined, color = undefined;
  
             var drag = d3.drag()
-                .on("start", function() {
+                .on("start", function(event) { // 'event' para D3v7
                     color = d3.select(this).attr("fill");
                     widget = d3.select(this).attr("fill", "lime");
                     d3.select(this).raise().attr("stroke", "black").attr("stroke-width", 2); // Traer al frente y añadir borde
                 })
-                .on("drag", function(event) { // event ahora contiene dx, dy
-                    widget.attr("cx", d3.event.x).attr("cy", d3.event.y); // d3.event para D3v5
+                .on("drag", function(event) { // 'event' para D3v7
+                    widget.attr("cx", event.x).attr("cy", event.y); 
                 })
                 .on("end", function() {
                     widget.attr("fill", color);
